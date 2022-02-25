@@ -9,30 +9,39 @@ const userRoutes = require("./routes/userRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const { notFound, errorHandler } = require("./middlewares/middlewares");
 
+const path = require("path")
+
 dotenv.config();
 
 app.use(cors());
 app.use(express.json());
 
-connectDB();
-// get all the notes
-// app.get('/api/notes', ( req, res)=>{
-//     res.json(notes)
-// })
+connectDB(); 
 
-// get single note
-// app.get('/api/note/:id', ( req, res)=>{
-
-//     const id = req.params.id;
-//     const result = notes.find((n)=>n._id === id);
-
-//     res.json(result)
-// })
 
 // user route
 app.use("/api/users", userRoutes);
 
 app.use("/api/notes", noteRoutes);
+
+
+/*----------- deployment---------*/
+
+__dirname = path.resolve();
+
+if( process.env.NODE_ENV === 'production'){
+    app.use(express.static(path.join(__dirname, '/notekeep-client/build')))
+
+    app.get('*', ( req, res )=>{
+      res.sendFile(path.resolve(__dirname,'notekeep-client','build','index.html'))
+    })
+  } else{
+  app.get("/", (req, res )=>{
+    res.send("API is running")
+  })
+}
+
+/*----------- deployment---------*/
 
 app.get('/', (req, res) => {
   res.send('Api is running')
